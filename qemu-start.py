@@ -15,6 +15,6 @@ else:
     memory_size = '4'
 filename = sys.argv[1]
 tap_no = sys.argv[2]
-system("qemu-system-x86_64 -enable-kvm -drive file=" + filename + ",format=qcow2 -net nic,model=virtio -net tap,ifname=tap" + \
+system("qemu-system-x86_64 -enable-kvm -drive file=" + filename + ",format=qcow2 -net nic,macaddr='52:54:00:12:34:5'" + tap_no + ",model=virtio -net tap,ifname=tap" + \
 tap_no + ",script=no,downscript=no,vhost=on -vga std -usbdevice tablet -machine type=pc,accel=kvm -smp " + num_cores + \
 " -m " + memory_size + "G -cpu host &")
