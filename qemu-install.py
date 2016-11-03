@@ -17,5 +17,5 @@ filename = sys.argv[1]
 imagename = sys.argv[2]
 tap_no = sys.argv[3]
 system("qemu-system-x86_64 -enable-kvm -cdrom " + imagename + " -boot order=d -drive file=" + filename + ",format=qcow2 -net\
- nic,model=virtio -net tap,ifname=tap" + tap_no + ",script=no,downscript=no,vhost=on -vga std -usbdevice tablet\
+ nic,macaddr='52:54:00:12:34:5'" + tap_no + ",model=virtio -net tap,ifname=tap" + tap_no + ",script=no,downscript=no,vhost=on -vga std -usbdevice tablet\
  -machine type=pc,accel=kvm -smp " + num_cores + " -m " + memory_size + "G -cpu host &")
