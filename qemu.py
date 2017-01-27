@@ -51,7 +51,7 @@ def create_tap(tap, eth):
     sys.exit(0)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Qemu helper. Requires one of --create, --install, --start.')
+    parser = argparse.ArgumentParser(description='Qemu helper. Requires one of --create, --install, --start, --create-tap.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', action='store_true', help='Create a new qemu image')
     group.add_argument('--install', action='store_true', help='Install an iso onto a qemu image')
