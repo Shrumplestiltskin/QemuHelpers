@@ -4,37 +4,35 @@ import sys
 from os import system
 
 qemu_img = "/usr/bin/qemu-img"
-qemu_binary = "/usr/bin/qemu-system-x86_64"
+qemu_binary = "/usr/bin/qemu-system-x86_64 -enable-kvm "
+qemu_tap_pre = " -net nic,macaddr='52:54:00:12:34:5'"
+qemu_tap_mid = ",model=virtio -net tap,ifname=tap"
+qemu_tap_post = ",script=no,downscript=no,vhost=on "
+qemu_boiler = "-vga std -usbdevice tablet -machine type=pc,accel=kvm -smp "
 
 def create(image, imagesize):
     system(qemu_img + " create -f qcow2 " + image + " " +  imagesize + "G")
     sys.exit(0)
 
 def install(image, iso, memory, tap, cores):
-    system("qemu-system-x86_64 -enable-kvm -cdrom " + image + \
-            " -boot order=d -drive file=" + filename + ",format=qcow2 \
-            -net nic,macaddr='52:54:00:12:34:5'" + tap + \
-            ",model=virtio -net tap,ifname=tap" + tap + \
-            ",script=no,downscript=no,vhost=on -vga std -usbdevice tablet\
-            -machine type=pc,accel=kvm -smp " + cores + \
+    system(qemu_binary + "-cdrom " + iso + \
+            " -boot order=d -drive file=" + image + ",format=qcow2" \
+            + qemu_tap_pre + tap + qemu_tap_mid + tap + \
+            qemu_tap_post + qemu_boiler + cores +
             " -m " + memory + "G -cpu host &")
     sys.exit(0)
 
 def start(image, memory, tap, cores):
-    system("qemu-system-x86_64 -enable-kvm -drive file=" + image + \
-            ",format=qcow2 -net nic macaddr='52:54:00:12:34:5'" + \
-            tap + ",model=virtio -net tap,ifname=tap" + \
-            tap + ",script=no,downscript=no,vhost=on \
-            -vga std -usbdevice tablet -machine type=pc,accel=kvm \
-            -smp " + cores + " -m " + memory + "G -cpu host &")
+    system(qemu_binary + "-drive file=" + image + \
+            ",format=qcow2" + qemu_tap_pre + tap +  \
+            qemu_tap_mid + tap + qemu_tap_post + \
+            qemu_boiler + cores + " -m " + memory + "G -cpu host &")
     sys.exit(0)
 
 def start_no_image(iso, memory, tap, cores):
-    system("qemu-system-x86_64 -enable-kvm -cdrom " + image + \
-            " -boot order=d -net nic,macaddr='52:54:00:12:34:5'" \
-            + tap + ",model=virtio -net tap,ifname=tap" + tap + \
-            ",script=no,downscript=no,vhost=on -vga std \
-            -usbdevice tablet -machine type=pc,accel=kvm -smp " \
+    system(qemu_binary + "-cdrom " + image + \
+            " -boot order=d" + qemu_tap_pre + tap +  \
+            qemu_tap_mid + tap + qemu_tap_post + qemu_boiler \
             + cores + " -m " + memory + "G -cpu host &")
     sys.exit(0)
 
