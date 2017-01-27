@@ -30,7 +30,7 @@ def start(image, memory, tap, cores):
     sys.exit(0)
 
 def start_no_image(iso, memory, tap, cores):
-    system(qemu_binary + "-cdrom " + image + \
+    system(qemu_binary + "-cdrom " + iso + \
             " -boot order=d" + qemu_tap_pre + tap +  \
             qemu_tap_mid + tap + qemu_tap_post + qemu_boiler \
             + cores + " -m " + memory + "G -cpu host &")
@@ -51,7 +51,7 @@ def create_tap(tap, eth):
     sys.exit(0)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Qemu helper. Requires one of --create, --install, --start, --create-tap.')
+    parser = argparse.ArgumentParser(description='Qemu helper. Requires one of --create, --install, --start.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', action='store_true', help='Create a new qemu image')
     group.add_argument('--install', action='store_true', help='Install an iso onto a qemu image')
