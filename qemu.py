@@ -8,7 +8,7 @@ qemu_binary = "/usr/bin/qemu-system-x86_64 -enable-kvm "
 qemu_tap_pre = " -net nic,macaddr='52:54:00:12:34:5'"
 qemu_tap_mid = ",model=virtio -net tap,ifname=tap"
 qemu_tap_post = ",script=no,downscript=no,vhost=on "
-qemu_boiler = "-vga std -usbdevice tablet -machine type=pc,accel=kvm -smp "
+qemu_boiler = "-vga vmware -usbdevice tablet -machine type=pc,accel=kvm -smp "
 
 def create(image, imagesize):
     system(qemu_img + " create -f qcow2 " + image + " " +  imagesize + "G")
