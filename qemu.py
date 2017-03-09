@@ -42,7 +42,7 @@ def create_tap(tap, eth):
         sys.exit(0)
     system('ip link add name br0 type bridge')
     system('ip link set br0 up')
-    system('ip tuntap add dev tap ' + tap + ' mode tap')
+    system('ip tuntap add dev tap' + tap + ' mode tap')
     system('ip link set tap' + tap + ' up')
     system('ip addr flush dev ' + eth)
     system('ip link set ' + eth + ' master br0')
