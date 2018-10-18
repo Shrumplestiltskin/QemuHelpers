@@ -35,12 +35,26 @@ def start(image, memory, tap, cores):
             qemu_boiler + cores + " -m " + memory + "G -cpu host &")
     sys.exit(0)
 
+def start_named_instance(image, memory, tap, cores, name):
+    system(qemu_binary + "-drive file=" + image + \
+            ",format=qcow2" + qemu_tap_pre + tap + \
+            qemu_tap_mid + tap + qemu_tap_post + \
+            qemu_boiler + cores + " -m " + memory + \
+            "G -name " + name + " -cpu host &")
+
 def start_no_image(iso, memory, tap, cores):
     system(qemu_binary + "-cdrom " + iso + \
             " -boot order=d" + qemu_tap_pre + tap +  \
             qemu_tap_mid + tap + qemu_tap_post + qemu_boiler \
             + cores + " -m " + memory + "G -cpu host &")
     sys.exit(0)
+
+def start_no_image_named_instance(iso, memory, tap, cores, name):
+    system(qemu_binary + "-cdrom " + iso + \
+            " -boot order=d" + qemu_tap_pre + tap + \
+            qemu_tap_mid + tap + qemu_tap_post + qemu_boiler \
+            + cores + " -m " + memory + "G -name " + name + \
+            " -cpu host &")
 
 def create_tap(tap, eth):
     if getuid():
@@ -53,16 +67,20 @@ def create_tap(tap, eth):
     system('ip addr flush dev ' + eth)
     system('ip link set ' + eth + ' master br0')
     system('ip link set tap' + tap + ' master br0')
-    system('systemctl restart dhcpcd')
+    system('systemctl stop dhcpcd')
+    system('/usr/bin/dhcpcd --config dhcpcd-tap.conf')
     sys.exit(0)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Qemu helper. Requires one of --create, --install, --start.')
+    parser = argparse.ArgumentParser(description='Qemu helper. Requires one of --create, --install, --start, --start-named.')
+
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--create', action='store_true', help='Create a new qemu image')
     group.add_argument('--install', action='store_true', help='Install an iso onto a qemu image')
     group.add_argument('--start', action='store_true', help='Start an existing qemu image')
+    group.add_argument('--start-named', action='store_true', help='Start an existing qemu image, name instance')
     group.add_argument('--create-tap', dest='create_tap', action='store_true', help='Creates a new tap interface')
+
     parser.add_argument('--image', type=str, help='Qemu image.')
     parser.add_argument('--image-size', dest='imagesize', type=str, help='Specify image size for creation.')
     parser.add_argument('--iso', type=str, help='ISO Image to load from.')
@@ -70,8 +88,9 @@ if __name__ == '__main__':
     parser.add_argument('--tap', type=str, help='Which tap to start image with.')
     parser.add_argument('--cores', type=str, help='Number of cores to load image with.')
     parser.add_argument('--eth', type=str, help='eth interface for tap creation.')
+    parser.add_argument('--name', type=str, help='instance name.')
 
-    parser.set_defaults(memory='4', cores='2', tap='1', create=False, install=False, start=False, create_tap=False)
+    parser.set_defaults(memory='4', cores='2', tap='1', create=False, install=False, start=False, start_named=False, create_tap=False)
 
     args = parser.parse_args()
 
@@ -80,11 +99,13 @@ if __name__ == '__main__':
             print('Need to specify image name and image size.')
             sys.exit(0)
         create(args.image, args.imagesize)
+
     if args.install:
         if not args.image or not args.iso:
             print('Need to specify image name and ISO.')
             sys.exit(0)
         install(args.image, args.iso, args.memory, args.tap, args.cores)
+
     if args.start:
         if not args.image and not args.iso:
             print('Need to specify image name or iso if starting without an image.')
@@ -93,6 +114,19 @@ if __name__ == '__main__':
             start(args.image, args.memory, args.tap, args.cores)
         elif args.iso and not args.image:
             start_no_image(args.iso, args.memory, args.tap, args.cores)
+
+    if args.start_named:
+        if not args.image and not args.iso:
+            print('Need to specify image name or iso if starting without an image.')
+            sys.exit(0)
+        if not args.name:
+            print('Need to specify image name.')
+            sys.exit(0)
+        elif args.image and not args.iso:
+            start_named_instance(args.image, args.memory, args.tap, args.cores, args.name)
+        elif args.iso and not args.image:
+            start_no_image_named_instance(args.iso, args.memory, args.tap, args.cores, args.name)
+
     if args.create_tap:
         if not args.tap or not args.eth:
             print('Need to specify tap and eth.')
