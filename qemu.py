@@ -40,7 +40,7 @@ def start_named_instance(image, memory, tap, cores, name):
             ",format=qcow2" + qemu_tap_pre + tap + \
             qemu_tap_mid + tap + qemu_tap_post + \
             qemu_boiler + cores + " -m " + memory + \
-            "G -name " + name + " -cpu host &")
+            "G -name " + name + " -cpu host > /dev/null 2>&1 &")
 
 def start_no_image(iso, memory, tap, cores):
     system(qemu_binary + "-cdrom " + iso + \

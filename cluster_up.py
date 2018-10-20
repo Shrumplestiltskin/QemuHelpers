@@ -24,6 +24,7 @@ def tap_build():
 def cluster_build():
     for x in range(len(systems)):
         try:
+            print('Starting ' + systems[x])
             start_named_instance(systems[x], '4', taps[x], '2', systems[x])
         except:
             continue
@@ -31,7 +32,7 @@ def cluster_build():
 def cluster_stop():
     for x in range(len(systems)):
         print('Stopping ' + systems[x])
-        system('/usr/bin/pkill -f ' + systems[x])
+        system('/usr/bin/pkill -f ' + systems[x] + ' > /dev/null 2>&1')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Brings up k8s cluster and taps, takes as argument either --start, --stop, or --taps')
